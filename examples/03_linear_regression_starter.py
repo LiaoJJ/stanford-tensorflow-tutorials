@@ -26,27 +26,33 @@ n_samples = sheet.nrows - 1
 
 # Step 2: create placeholders for input X (number of fire) and label Y (number of theft)
 # Both have the type float32
+X = tf.placeholder(tf.float32, shape=(), name='X')
+Y = tf.placeholder(tf.float32, shape=(), name='Y')
 
 
 # Step 3: create weight and bias, initialized to 0
 # name your variables w and b
-
+W = tf.Variable(0.0, name='W')
+b = tf.Variable(0.0, name='b')
 
 # Step 4: predict Y (number of theft) from the number of fire
 # name your variable Y_predicted
-
+Y_predicted = W*X+b
 
 # Step 5: use the square error as the loss function
 # name your variable loss
-
+loss = tf.square(Y-Y_predicted, name='loss')
 
 # Step 6: using gradient descent with learning rate of 0.01 to minimize loss
+optimizer = tf.train.AdamOptimizer(0.01).minimize(loss)
  
 # Phase 2: Train our model
 with tf.Session() as sess:
 	# Step 7: initialize the necessary variables, in this case, w and b
-	# TO - DO	
-
+	# TO - DO
+	init = tf.global_variables_initializer()
+	sess.run(init)
+	writer = tf.summary.FileWriter('./my_graph/03/linear_reg',sess.graph)
 
 	# Step 8: train the model
 	for i in range(50): # run 100 epochs
@@ -54,13 +60,16 @@ with tf.Session() as sess:
 		for x, y in data:
 			# Session runs optimizer to minimize loss and fetch the value of loss. Name the received value as l
 			# TO DO: write sess.run()
-
+			_,l = sess.run([optimizer,loss],feed_dict={X:x,Y:y})
 			total_loss += l
 		print("Epoch {0}: {1}".format(i, total_loss/n_samples))
+
+	writer.close()
+	w, b = sess.run([W,b])
 	
 # plot the results
-# X, Y = data.T[0], data.T[1]
-# plt.plot(X, Y, 'bo', label='Real data')
-# plt.plot(X, X * w + b, 'r', label='Predicted data')
-# plt.legend()
-# plt.show()
+X, Y = data.T[0], data.T[1]
+plt.plot(X, Y, 'bo', label='Real data')
+plt.plot(X, X * w + b, 'r', label='Predicted data')
+plt.legend()
+plt.show()
