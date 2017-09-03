@@ -14,7 +14,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 import time
 
 # Define paramaters for the model
-learning_rate = 0.01
+learning_rate = 0.1
 batch_size = 128
 n_epochs = 10
 
