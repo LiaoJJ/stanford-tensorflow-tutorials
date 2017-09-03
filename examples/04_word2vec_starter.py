@@ -18,7 +18,7 @@ from tensorflow.contrib.tensorboard.plugins import projector
 from process_data import process_data
 
 VOCAB_SIZE = 50000
-BATCH_SIZE = 128
+BATCH_SIZE = 128 
 EMBED_SIZE = 128 # dimension of the word embedding vectors
 SKIP_WINDOW = 1 # the context window
 NUM_SAMPLED = 64    # Number of negative examples to sample.
