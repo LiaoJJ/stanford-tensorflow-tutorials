@@ -31,7 +31,7 @@ def word2vec(batch_gen):
     # Step 1: define the placeholders for input and output
     with tf.name_scope('data'):
         center_words = tf.placeholder(tf.int32, shape=[BATCH_SIZE], name='center_words')
-        target_words = tf.placeholder(tf.int32, shape=[BATCH_SIZE, 1], name='target_words')
+        target_words = tf.placeholder(tf.int32, shape=[BATCH_SIZE,1], name='target_words')
 
     # Assemble this part of the graph on the CPU. You can change it to GPU if you have GPU
     # Step 2: define weights. In word2vec, it's actually the weights that we care about

@@ -32,6 +32,8 @@ def word2vec(batch_gen):
     # center_words have to be int to work on embedding lookup
 
     # TO DO
+    center_words = tf.placeholder(tf.int32,shape=[BATCH_SIZE],name='center_words')
+    target_words = tf.placeholder(tf.int32,shape=[BATCH_SIZE,1],name='target_words')
 
 
     # Step 2: define weights. In word2vec, it's actually the weights that we care about
@@ -39,6 +41,7 @@ def word2vec(batch_gen):
     # initialized to random uniform -1 to 1
 
     # TOO DO
+    embed_matrix = tf.Variable(tf.random_uniform([VOCAB_SIZE,EMBED_SIZE],-1.0,1.0),name='embed_matrix')
 
 
     # Step 3: define the inference
@@ -46,32 +49,49 @@ def word2vec(batch_gen):
     # embed = tf.nn.embedding_lookup(embed_matrix, center_words, name='embed')
 
     # TO DO
+    embed = tf.nn.embedding_lookup(embed_matrix,center_words,name='embedding_lookup')
 
 
-        # Step 4: construct variables for NCE loss
-        # tf.nn.nce_loss(weights, biases, labels, inputs, num_sampled, num_classes, ...)
-        # nce_weight (vocab size x embed size), intialized to truncated_normal stddev=1.0 / (EMBED_SIZE ** 0.5)
-        # bias: vocab size, initialized to 0
+    # Step 4: construct variables for NCE loss
+    # tf.nn.nce_loss(weights, biases, labels, inputs, num_sampled, num_classes, ...)
+    # nce_weight (vocab size x embed size), intialized to truncated_normal stddev=1.0 / (EMBED_SIZE ** 0.5)
+    # bias: vocab size, initialized to 0
 
-        # TO DO
+    # TO DO
+    nce_weight = tf.Variable(tf.truncated_normal([VOCAB_SIZE,EMBED_SIZE],stddev=1.0/(EMBED_SIZE**0.5)),name='nce_weight')
+    nce_bias = tf.Variable(tf.zeros([VOCAB_SIZE]),name='nce_bias')
 
 
-        # define loss function to be NCE loss function
-        # tf.nn.nce_loss(weights, biases, labels, inputs, num_sampled, num_classes, ...)
-        # need to get the mean accross the batch
-        # note: you should use embedding of center words for inputs, not center words themselves
+    # define loss function to be NCE loss function
+    # tf.nn.nce_loss(weights, biases, labels, inputs, num_sampled, num_classes, ...)
+    # need to get the mean accross the batch
+    # note: you should use embedding of center words for inputs, not center words themselves
 
-        # TO DO
+    # TO DO
+    # by ljj
+    # I guess here the computation is tf.matmul(nce_weight,embed)+nce_bias
+    loss = tf.reduce_mean(tf.nn.nce_loss(weights=nce_weight,
+                              biases=nce_bias,
+                              labels=target_words,
+                              inputs=embed,
+                              num_sampled=NUM_SAMPLED,
+                              num_classes=VOCAB_SIZE),name='loss')
 
         
     # Step 5: define optimizer
     
     # TO DO
+    # the loss is very big when using tf.train.AdamOptimizer(1)
+    # maybe lr should be smaller in this case
+    # optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
+    optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+
 
 
 
     with tf.Session() as sess:
         # TO DO: initialize variables
+        sess.run(tf.global_variables_initializer())
 
 
         total_loss = 0.0 # we use this to calculate the average loss in the last SKIP_STEP steps
@@ -79,6 +99,7 @@ def word2vec(batch_gen):
         for index in range(NUM_TRAIN_STEPS):
             centers, targets = next(batch_gen)
             # TO DO: create feed_dict, run optimizer, fetch loss_batch
+            _,loss_batch = sess.run([optimizer,loss],feed_dict={center_words:centers,target_words:targets})
 
             total_loss += loss_batch
             if (index + 1) % SKIP_STEP == 0:
