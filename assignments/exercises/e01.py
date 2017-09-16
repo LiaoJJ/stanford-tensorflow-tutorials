@@ -23,18 +23,24 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 ###############################################################################
 
 # YOUR CODE
+x = tf.random_uniform([], -1, 1)
+y = tf.random_uniform([],-1 , 1)
+out = tf.case({tf.less(x,y):lambda:tf.add(x,y)},lambda:tf.subtract(x,y))
 
 ###############################################################################
-# 1c: Create the tensor x of the value [[0, -2, -1], [0, 1, 2]] 
+# 1c: Create the tensor x of the value [[0, -2, -1], [0, 1, 2]]
 # and y as a tensor of zeros with the same shape as x.
 # Return a boolean tensor that yields Trues if x equals y element-wise.
 # Hint: Look up tf.equal().
 ###############################################################################
 
 # YOUR CODE
+x = tf.constant([[0, -2, -1], [0, 1, 2]])
+y = tf.zeros_like(x)
+out = tf.equal(x,y)
 
 ###############################################################################
-# 1d: Create the tensor x of value 
+# 1d: Create the tensor x of value
 # [29.05088806,  27.61298943,  31.19073486,  29.35532951,
 #  30.97266006,  26.67541885,  38.08450317,  20.74983215,
 #  34.94445419,  34.45999146,  29.06485367,  36.01657104,
@@ -47,6 +53,14 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 ###############################################################################
 
 # YOUR CODE
+x = tf.Variable(
+[29.05088806,  27.61298943,  31.19073486,  29.35532951,
+ 30.97266006,  26.67541885,  38.08450317,  20.74983215,
+ 34.94445419,  34.45999146,  29.06485367,  36.01657104,
+ 27.88236427,  20.56035233,  30.20379066,  29.51215172,
+ 33.71149445,  28.59134293,  36.05556488,  28.66994858])
+indices = tf.where(tf.greater(x,30))
+out2 = tf.gather(x,indices)
 
 ###############################################################################
 # 1e: Create a diagnoal 2-d tensor of size 6 x 6 with the diagonal values of 1,
@@ -55,6 +69,7 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 ###############################################################################
 
 # YOUR CODE
+x = tf.diag(tf.range(1,7))
 
 ###############################################################################
 # 1f: Create a random 2-d tensor of size 10 x 10 from any distribution.
