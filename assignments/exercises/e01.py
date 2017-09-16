@@ -88,6 +88,8 @@ out = tf.matrix_determinant(x)
 ###############################################################################
 
 # YOUR CODE
+x = tf.constant([5, 2, 3, 5, 10, 6, 2, 3, 4, 2, 1, 1, 0, 9])
+y,idx = tf.unique(x)
 
 ###############################################################################
 # 1h: Create two tensors x and y of shape 300 from any normal distribution,
@@ -100,3 +102,6 @@ out = tf.matrix_determinant(x)
 ###############################################################################
 
 # YOUR CODE
+x = tf.random_normal([300])
+y = tf.random_normal([300])
+out = tf.cond(tf.less(tf.reduce_mean(x-y),0),lambda:0.5*tf.square(x-y),lambda:tf.reduce_sum(tf.abs(x-y)))
