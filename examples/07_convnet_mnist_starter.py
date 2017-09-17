@@ -1,4 +1,4 @@
-e""" Using convolutional net on MNIST dataset of handwritten digit
+""" Using convolutional net on MNIST dataset of handwritten digit
 (http://yann.lecun.com/exdb/mnist/)
 Author: Chip Huyen
 Prepared for the class CS 20SI: "TensorFlow for Deep Learning Research"
@@ -22,10 +22,10 @@ N_CLASSES = 10
 
 # Step 1: Read in data
 # using TF Learn's built in function to load MNIST data to the folder data/mnist
-mnist = input_data.read_data_sets("/data/mnist", one_hot=True)
+mnist = input_data.read_data_sets("./data/mnist", one_hot=True)
 
 # Step 2: Define paramaters for the model
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 BATCH_SIZE = 128
 SKIP_STEP = 10
 DROPOUT = 0.75
@@ -62,19 +62,23 @@ with tf.variable_scope('conv1') as scope:
     # use tf.truncated_normal_initializer()
     
     # TO DO
+    W1 = tf.Variable(tf.truncated_normal(shape=[5,5,1,32],mean=0,stddev=0.01))
 
     # create biases variable of dimension [32]
     # use tf.constant_initializer(0.0)
     
-    # TO DO 
+    # TO DO
+    b1 = tf.Variable(tf.zeros([32]))
 
     # apply tf.nn.conv2d. strides [1, 1, 1, 1], padding is 'SAME'
     
     # TO DO
+    h1 = tf.nn.conv2d(images,W1,[1,1,1,1],'SAME')+b1
 
     # apply relu on the sum of convolution output and biases
     
-    # TO DO 
+    # TO DO
+    a1 = tf.nn.relu(h1)
 
     # output is of dimension BATCH_SIZE x 28 x 28 x 32
 
@@ -82,6 +86,7 @@ with tf.variable_scope('pool1') as scope:
     # apply max pool with ksize [1, 2, 2, 1], and strides [1, 2, 2, 1], padding 'SAME'
     
     # TO DO
+    pool1 = tf.nn.max_pool(a1,[1,2,2,1],[1,2,2,1],padding='SAME')
 
     # output is of dimension BATCH_SIZE x 14 x 14 x 32
 
@@ -110,6 +115,8 @@ with tf.variable_scope('fc') as scope:
     # create weights and biases
 
     # TO DO
+    w = tf.Variable(tf.truncated_normal([input_features,1024],0,0.01))
+    b = tf.Variable(tf.zeros([1024]))
 
     # reshape pool2 to 2 dimensional
     pool2 = tf.reshape(pool2, [-1, input_features])
@@ -127,6 +134,10 @@ with tf.variable_scope('softmax_linear') as scope:
     # you need to create weights and biases
 
     # TO DO
+    W2 = tf.Variable(tf.truncated_normal([1024,10],0,0.01))
+    b2 = tf.Variable(tf.zeros([10]))
+
+    logits = tf.matmul(fc,W2)+b2
 
 # Step 6: define loss function
 # use softmax cross entropy with logits as the loss function
@@ -135,12 +146,14 @@ with tf.name_scope('loss'):
     # you should know how to do this too
     
     # TO DO
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=Y,logits=logits))
 
 # Step 7: define training op
 # using gradient descent with learning rate of LEARNING_RATE to minimize cost
 # don't forgot to pass in global_step
 
 # TO DO
+    optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss=loss,global_step=global_step)
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -151,8 +164,9 @@ with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/convnet_mnist/checkpoint'))
     # if that checkpoint exists, restore from checkpoint
     if ckpt and ckpt.model_checkpoint_path:
-        saver.restore(sess, ckpt.model_checkpoint_path)
-    
+        # saver.restore(sess, ckpt.model_checkpoint_path)
+        pass
+
     initial_step = global_step.eval()
 
     start_time = time.time()
@@ -161,27 +175,27 @@ with tf.Session() as sess:
     total_loss = 0.0
     for index in range(initial_step, n_batches * N_EPOCHS): # train the model n_epochs times
         X_batch, Y_batch = mnist.train.next_batch(BATCH_SIZE)
-        _, loss_batch = sess.run([optimizer, loss], 
-                                feed_dict={X: X_batch, Y:Y_batch, dropout: DROPOUT}) 
+        _, loss_batch = sess.run([optimizer, loss],
+                                feed_dict={X: X_batch, Y:Y_batch, dropout: DROPOUT})
         total_loss += loss_batch
         if (index + 1) % SKIP_STEP == 0:
             print('Average loss at step {}: {:5.1f}'.format(index + 1, total_loss / SKIP_STEP))
             total_loss = 0.0
             saver.save(sess, 'checkpoints/convnet_mnist/mnist-convnet', index)
-    
+
     print("Optimization Finished!") # should be around 0.35 after 25 epochs
     print("Total time: {0} seconds".format(time.time() - start_time))
-    
+
     # test the model
     n_batches = int(mnist.test.num_examples/BATCH_SIZE)
     total_correct_preds = 0
     for i in range(n_batches):
         X_batch, Y_batch = mnist.test.next_batch(BATCH_SIZE)
-        _, loss_batch, logits_batch = sess.run([optimizer, loss, logits], 
-                                        feed_dict={X: X_batch, Y:Y_batch, dropout: DROPOUT}) 
+        _, loss_batch, logits_batch = sess.run([optimizer, loss, logits],
+                                        feed_dict={X: X_batch, Y:Y_batch, dropout: DROPOUT})
         preds = tf.nn.softmax(logits_batch)
         correct_preds = tf.equal(tf.argmax(preds, 1), tf.argmax(Y_batch, 1))
         accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
-        total_correct_preds += sess.run(accuracy)   
-    
+        total_correct_preds += sess.run(accuracy)
+
     print("Accuracy {0}".format(total_correct_preds/mnist.test.num_examples))
