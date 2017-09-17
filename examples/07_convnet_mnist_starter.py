@@ -1,4 +1,4 @@
-""" Using convolutional net on MNIST dataset of handwritten digit
+e""" Using convolutional net on MNIST dataset of handwritten digit
 (http://yann.lecun.com/exdb/mnist/)
 Author: Chip Huyen
 Prepared for the class CS 20SI: "TensorFlow for Deep Learning Research"

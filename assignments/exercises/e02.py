@@ -12,7 +12,7 @@ TEST_SET_NUM   = 62
 BATCH_SIZE = 100
 HIDDEN_SIZE= 4
 LOGIT_SIZE = 2
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.01
 class lrmodel:
     def __init__(self,file_path,batch_size,train_set_dim,hidden_size,logit_size,lr,train_set_num,test_set_num):
         self.file_path=file_path
@@ -86,31 +86,32 @@ class lrmodel:
 
     def train_model(self,epoch,print_steps=4, test=1):
         with tf.Session() as sess:
-            writer = tf.summary.FileWriter('./graphs/logistic_reg', sess.graph)
-            sess.run(tf.global_variables_initializer())
-            for e in range(epoch):
-                total_loss = 0
-                total_train_acc=0
-                for step in range(4):
-                    xxx = self.x_train[step * self.batch_size: (step + 1) * self.batch_size,:]
-                    yyy = self.y_train[step * self.batch_size: (step + 1) * self.batch_size,:]
-                    feed_dict = {self.X:xxx, self.y:yyy}
+            with tf.device('/gpu:0'):
+                writer = tf.summary.FileWriter('./graphs/logistic_reg', sess.graph)
+                sess.run(tf.global_variables_initializer())
+                for e in range(epoch):
+                    total_loss = 0
+                    total_train_acc=0
+                    for step in range(4):
+                        xxx = self.x_train[step * self.batch_size: (step + 1) * self.batch_size,:]
+                        yyy = self.y_train[step * self.batch_size: (step + 1) * self.batch_size,:]
+                        feed_dict = {self.X:xxx, self.y:yyy}
 
-                    [loss,_,debug,train_acc]=sess.run([self.loss,self.optimizer,self.debug,self.accuracy],feed_dict=feed_dict)
-                    # debug
-                    # print(debug)
-                    total_loss+=loss
-                    total_train_acc+=train_acc
-                if(1):
-                    print("epoch:{} loss:{} train_acc:{}".format(e,total_loss,total_train_acc/400))
-                    pass
-                # if(test==1):
-                #     xxx = self.x_test[0:-1, :]
-                #     yyy = self.y_test[0:-1, :]
-                #     feed_dict = {self.X: xxx, self.y: yyy}
-                #     [acc] = sess.run([self.accuracy], feed_dict=feed_dict)
-                #     # print("test accuracy: {.3f}".format(acc/self.test_set_num))
-            writer.close()
+                        [loss,_,debug,train_acc]=sess.run([self.loss,self.optimizer,self.debug,self.accuracy],feed_dict=feed_dict)
+                        # debug
+                        # print(debug)
+                        total_loss+=loss
+                        total_train_acc+=train_acc
+                    if(1):
+                        print("epoch:{} loss:{} train_acc:{}".format(e,total_loss,total_train_acc/400))
+                        pass
+                    # if(test==1):
+                    #     xxx = self.x_test[0:-1, :]
+                    #     yyy = self.y_test[0:-1, :]
+                    #     feed_dict = {self.X: xxx, self.y: yyy}
+                    #     [acc] = sess.run([self.accuracy], feed_dict=feed_dict)
+                    #     # print("test accuracy: {.3f}".format(acc/self.test_set_num))
+                writer.close()
 
 
 
@@ -127,7 +128,7 @@ class lrmodel:
 def main():
     model = lrmodel(FILE_PATH,BATCH_SIZE,TRAIN_SET_DIM,HIDDEN_SIZE,LOGIT_SIZE,LEARNING_RATE,TRAIN_SET_NUM,TEST_SET_NUM)
     model.build_graph()
-    model.train_model(epoch=100,test=1)
+    model.train_model(epoch=1000,test=1)
     # model.test_model()
 
 if __name__ == '__main__':
