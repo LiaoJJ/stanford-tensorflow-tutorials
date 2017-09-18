@@ -29,7 +29,7 @@ LEARNING_RATE = 0.01
 BATCH_SIZE = 128
 SKIP_STEP = 10
 DROPOUT = 0.75
-N_EPOCHS = 1
+N_EPOCHS = 2
 
 # Step 3: create placeholders for features and labels
 # each image in the MNIST data is of shape 28*28 = 784

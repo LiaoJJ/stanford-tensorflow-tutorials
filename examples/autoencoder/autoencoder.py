@@ -5,6 +5,7 @@ from layers import *
 def encoder(input):
     # Create a conv network with 3 conv layers and 1 FC layer
     # Conv 1: filter: [3, 3, 1], stride: [2, 2], relu
+    tf.layers.conv2d(input,)
     
     # Conv 2: filter: [3, 3, 8], stride: [2, 2], relu
     
